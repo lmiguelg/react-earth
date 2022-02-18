@@ -13,17 +13,14 @@ import React from 'react'
 export interface ITableItem {
   id: string | number
 }
-type IColumn<T extends ITableItem> = Record<keyof T, string>
+type IColumn<T extends ITableItem> = Record<keyof T, any>
 
 interface ITableProps<T extends ITableItem> {
   items: T[]
   headers: IColumn<T>
+  onClickRow?: (item: T) => void
 }
 
-/** Helpers */
-
-// helper to get an array containing the object values with
-// the correct type infered.
 function objectValues<T extends {}>(obj: T) {
   return Object.keys(obj).map((objKey) => obj[objKey as keyof T])
 }
@@ -32,7 +29,11 @@ function objectKeys<T extends {}>(obj: T) {
   return Object.keys(obj).map((objKey) => objKey as keyof T)
 }
 
-const Table = <T extends ITableItem>({ items, headers }: ITableProps<T>) => {
+const Table = <T extends ITableItem>({
+  items,
+  headers,
+  onClickRow
+}: ITableProps<T>) => {
   return (
     <TableContainer component={Paper}>
       <MUITable>
@@ -50,7 +51,10 @@ const Table = <T extends ITableItem>({ items, headers }: ITableProps<T>) => {
         <TableBody>
           {items.length ? (
             items.map((item, i) => (
-              <TableRow key={`rows-${i}`}>
+              <TableRow
+                key={`rows-${i}`}
+                onClick={() => onClickRow && onClickRow(item)}
+              >
                 {objectKeys(item).map((itemProperty, i) => (
                   <TableCell key={`${item[itemProperty]}-${i}`}>
                     {item[itemProperty]}

@@ -5,14 +5,20 @@ const api = axios.create({
   baseURL: 'https://api.github.com'
 })
 
-const useFetch = <T = unknown>(url: string, options?: AxiosRequestConfig) => {
+interface ApiProps {
+  url: string
+  method?: 'get' | 'post' | 'put' | 'delete'
+  body?: any
+  options?: AxiosRequestConfig
+}
+
+const useFetch = <T>({ url, method = 'get', body, options }: ApiProps) => {
   const [data, setData] = useState<T | null>(null)
   const [isFetching, setIsFetching] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    api
-      .get(url, options)
+    api[method](url, body, options)
       .then((response) => {
         setData(response.data)
       })
@@ -22,7 +28,7 @@ const useFetch = <T = unknown>(url: string, options?: AxiosRequestConfig) => {
       .finally(() => {
         setIsFetching(false)
       })
-  }, [url, options])
+  }, [url, method, body, options])
 
   return { data, isFetching, error }
 }
